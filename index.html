@@ -62,16 +62,15 @@
             display: flex;
             justify-content: flex-end;
             margin-bottom: 16px;
-            gap: 10px;
         }
 
         .lang-btn {
             background: rgba(10, 10, 10, 0.6);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 18px;
+            padding: 8px 20px;
             border-radius: 40px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.25s ease;
@@ -79,23 +78,18 @@
             letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .lang-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
             transform: scale(1.02);
         }
 
-        .lang-btn.active {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.6);
-        }
-
         .lang-btn svg {
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             stroke: #ffffff;
             fill: none;
             stroke-width: 1.8;
@@ -170,7 +164,6 @@
             transition: all 0.2s ease;
             cursor: pointer;
             border: none;
-            text-decoration: none;
         }
 
         .share-btn:hover {
@@ -453,12 +446,21 @@
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
         }
 
-        /* Google Translate iframe hidden but functional */
-        .skiptranslate {
+        /* Hide Google Translate top bar */
+        .goog-te-banner-frame.skiptranslate {
             display: none !important;
         }
+        
         body {
             top: 0px !important;
+        }
+        
+        .goog-te-gadget {
+            display: none !important;
+        }
+        
+        .goog-te-gadget-simple {
+            display: none !important;
         }
 
         @media (max-width: 550px) {
@@ -484,7 +486,6 @@
             body::before { display: none; }
             .card { background: white; backdrop-filter: none; box-shadow: none; border: 1px solid #e5e7eb; }
             .print-btn, .whatsapp-btn, .share-btn, .gallery-btn, .modal, .lang-switch-container { display: none; }
-            .skiptranslate { display: none !important; }
             .name { color: #111827; }
             .info-value { color: #374151; }
             .about-text { color: #374151; }
@@ -495,38 +496,20 @@
             .social-link svg { stroke: #374151; }
         }
     </style>
-    <!-- Google Translate Widget Script -->
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'en',
-                includedLanguages: 'gu,en',
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                autoDisplay: false
-            }, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
     <div class="container">
         <div class="lang-switch-container">
-            <button class="lang-btn" id="englishBtn">
+            <button class="lang-btn" id="translateBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <circle cx="12" cy="12" r="10"/>
                     <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                 </svg>
-                English
-            </button>
-            <button class="lang-btn" id="gujaratiBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                </svg>
-                ગુજરાતી
+                <span id="btnText">ગુજરાતી</span>
             </button>
         </div>
-        <!-- Hidden Google Translate Element -->
+
+        <!-- Google Translate Element (Hidden) -->
         <div id="google_translate_element" style="display: none;"></div>
 
         <!-- Profile Card -->
@@ -773,7 +756,47 @@
         <img id="modalImage" src="" alt="Enlarged Photo">
     </div>
 
-    <script>
+    <script type="text/javascript">
+        let isGujarati = false;
+        
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'gu,en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+        
+        function translatePage(lang) {
+            const selectElement = document.querySelector('.goog-te-combo');
+            if (selectElement) {
+                selectElement.value = lang;
+                selectElement.dispatchEvent(new Event('change'));
+            }
+        }
+        
+        function toggleLanguage() {
+            if (!isGujarati) {
+                // Switch to Gujarati
+                translatePage('gu');
+                document.getElementById('btnText').innerText = 'English';
+                isGujarati = true;
+            } else {
+                // Switch to English
+                translatePage('en');
+                document.getElementById('btnText').innerText = 'ગુજરાતી';
+                isGujarati = false;
+            }
+        }
+        
+        // Wait for Google Translate to load
+        setTimeout(function() {
+            const btn = document.getElementById('translateBtn');
+            if (btn) {
+                btn.addEventListener('click', toggleLanguage);
+            }
+        }, 1000);
+        
         // Photo Enlargement
         const profilePhoto = document.getElementById('profilePhoto');
         const modal = document.getElementById('imageModal');
@@ -816,60 +839,6 @@
             }
         });
 
-        // Google Translate Functions
-        let currentLanguage = 'en';
-        
-        function translateToGujarati() {
-            const selectElement = document.querySelector('.goog-te-combo');
-            if (selectElement) {
-                selectElement.value = 'gu';
-                selectElement.dispatchEvent(new Event('change'));
-                currentLanguage = 'gu';
-                updateButtonStyles();
-            } else {
-                // If not loaded yet, wait and try again
-                setTimeout(translateToGujarati, 500);
-            }
-        }
-        
-        function translateToEnglish() {
-            const selectElement = document.querySelector('.goog-te-combo');
-            if (selectElement) {
-                selectElement.value = 'en';
-                selectElement.dispatchEvent(new Event('change'));
-                currentLanguage = 'en';
-                updateButtonStyles();
-            } else {
-                setTimeout(translateToEnglish, 500);
-            }
-        }
-        
-        function updateButtonStyles() {
-            const englishBtn = document.getElementById('englishBtn');
-            const gujaratiBtn = document.getElementById('gujaratiBtn');
-            
-            if (currentLanguage === 'en') {
-                englishBtn.classList.add('active');
-                gujaratiBtn.classList.remove('active');
-            } else {
-                englishBtn.classList.remove('active');
-                gujaratiBtn.classList.add('active');
-            }
-        }
-        
-        // Button Event Listeners
-        document.getElementById('englishBtn').addEventListener('click', function() {
-            if (currentLanguage !== 'en') {
-                translateToEnglish();
-            }
-        });
-        
-        document.getElementById('gujaratiBtn').addEventListener('click', function() {
-            if (currentLanguage !== 'gu') {
-                translateToGujarati();
-            }
-        });
-        
         // Double-click to edit name
         const nameElement = document.getElementById('displayName');
         const fullNameElement = document.getElementById('fullName');
@@ -926,7 +895,8 @@
         // Update WhatsApp Contact Link
         document.getElementById('whatsappContactBtn').href = 'https://wa.me/919876543210?text=Hello,%20I%20saw%20your%20marriage%20bio-data%20and%20would%20like%20to%20connect.';
         
-        console.log('✅ Features active: Google Translate (English/Gujarati) | Click photo to enlarge | Share button | WhatsApp button');
+        console.log('✅ Features active: Language toggle (English/Gujarati) | Click photo to enlarge | Share button | WhatsApp button');
     </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
